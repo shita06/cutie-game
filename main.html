@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>顔当てゲーム</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        #photo { max-width: 300px; max-height: 300px; object-fit: cover; border-radius: 10px; margin-bottom: 20px; }
+        #choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: 0 auto; }
+        button { padding: 10px; font-size: 16px; cursor: pointer; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9; }
+        button:hover { background-color: #e0e0e0; }
+        button:disabled { cursor: not-allowed; opacity: 0.7; }
+        #result { margin-top: 20px; font-size: 20px; font-weight: bold; height: 30px; }
+        #next-btn { margin-top: 20px; padding: 10px 20px; font-size: 16px; display: none; }
+        
+        .correct { background-color: #a8e6cf !important; border-color: #a8e6cf; }
+        .wrong { background-color: #ff8b94 !important; border-color: #ff8b94; }
+    </style>
+</head>
+<body>
+
+    <h1>誰の顔でしょう？</h1>
+    
+    <img id="photo" src="" alt="顔写真">
+    <div id="choices"></div>
+    <div id="result"></div>
+    
+    <button id="next-btn">次の問題へ</button>
+
+    <script>
+        const peopleData = [
+            { name: "Risa", imageUrl: "./risa.jpeg" },
+            { name: "Aika", imageUrl: "./aika.jpeg" },
+            { name: "Kana", imageUrl: "./kana.jpeg" },
+            { name: "Ayano", imageUrl: "./ayan.jpeg" },
+            { name: "Emiru", imageUrl: "./emir.jpeg" },
+            { name: "Miyu", imageUrl: "./miyu.jpeg" },
+            { name: "Nagisa", imageUrl: "./nagi.jpeg" },
+            { name: "Haruka", imageUrl: "./haru.jpeg" }
+        ];
+
+        let currentCorrectPerson = null;
+
+        function loadQuestion() {
+            const choicesDiv = document.getElementById("choices");
+            choicesDiv.innerHTML = "";
+            document.getElementById("result").innerText = "";
+            document.getElementById("next-btn").style.display = "none";
+
+            // 正解の人物をランダムに1人選ぶ
+            const randomIndex = Math.floor(Math.random() * peopleData.length);
+            currentCorrectPerson = peopleData[randomIndex];
+
+            // 画像のURLをセット
+            document.getElementById("photo").src = currentCorrectPerson.imageUrl;
+
+            // 選択肢はシャッフルせず、peopleDataの順番通りに生成する
+            peopleData.forEach(person => {
+                const btn = document.createElement("button");
+                btn.innerText = person.name;
+                btn.onclick = () => checkAnswer(btn, person.name);
+                choicesDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(clickedButton, selectedName) {
+            const buttons = document.querySelectorAll("#choices button");
+            const resultDiv = document.getElementById("result");
+            const nextBtn = document.getElementById("next-btn");
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedName === currentCorrectPerson.name) {
+                resultDiv.innerText = "正解！🎉";
+                resultDiv.style.color = "green";
+                clickedButton.classList.add("correct");
+            } else {
+                resultDiv.innerText = `残念！正解は「${currentCorrectPerson.name}」でした。`;
+                resultDiv.style.color = "red";
+                clickedButton.classList.add("wrong");
+                
+                buttons.forEach(btn => {
+                    if (btn.innerText === currentCorrectPerson.name) {
+                        btn.classList.add("correct");
+                    }
+                });
+            }
+
+            nextBtn.style.display = "inline-block";
+        }
+
+        document.getElementById("next-btn").onclick = loadQuestion;
+        loadQuestion();
+    </script>
+</body>
+</html>
